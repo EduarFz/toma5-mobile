@@ -22,34 +22,36 @@ const LoginScreen = () => {
   const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    // Validaciones básicas
-    if (!cedula.trim()) {
-      setError('Ingresa tu número de cédula.');
-      return;
-    }
-    if (!contrasena.trim()) {
-      setError('Ingresa tu contraseña.');
-      return;
-    }
-
-    try {
-      setCargando(true);
-      setError('');
-      await login(cedula.trim(), contrasena.trim());
-      // La navegación la maneja AppNavigator automáticamente
-    } catch (err) {
-  // Ignorar 401 que no vienen de una acción del usuario (reloads, interceptores)
-  if (err.response?.status === 401 && !cedula.trim() && !contrasena.trim()) return;
+  console.log('[DEBUG LOGIN] Botón presionado, cédula:', cedula, 'pass:', contrasena ? 'TIENE' : 'VACÍA');
   
-  const mensaje =
-    err.message ||
-    err.response?.data?.mensaje ||
-    'Error al iniciar sesión. Verifica tus credenciales.';
+  if (!cedula.trim()) {
+    setError('Ingresa tu número de cédula.');
+    return;
+  }
+  if (!contrasena.trim()) {
+    setError('Ingresa tu contraseña.');
+    return;
+  }
+
+  try {
+    setCargando(true);
+    setError('');
+    console.log('[DEBUG LOGIN] Llamando a login...');
+    await login(cedula.trim(), contrasena.trim());
+    console.log('[DEBUG LOGIN] Login exitoso');
+  } catch (err) {
+  console.log('[DEBUG LOGIN] Error capturado:', err.response?.status, err.message);
+  console.log('[DEBUG LOGIN] Respuesta del backend:', JSON.stringify(err.response?.data));
+  console.log('[DEBUG LOGIN] Cédula enviada:', cedula.trim());
+  if (err.response?.status === 401 && !cedula.trim() && !contrasena.trim()) return;
+  const mensaje = err.message || err.response?.data?.mensaje || 'Error al iniciar sesión.';
   setError(mensaje);
-} finally {
-  setCargando(false);
 }
-  };
+ finally {
+    setCargando(false);
+  }
+};
+
 
   return (
     <KeyboardAvoidingView

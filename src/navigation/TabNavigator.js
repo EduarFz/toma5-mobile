@@ -18,7 +18,7 @@ const PlaceholderScreen = ({ nombre }) => (
 );
 
 const NotificacionesPlaceholder = () => <PlaceholderScreen nombre="🔔 Notificaciones" />;
-const HistorialPlaceholder = () => <PlaceholderScreen nombre="📋 Historial" />;
+import HistorialScreen from '../screens/HistorialScreen';
 const PerfilPlaceholder = PerfilScreen;
 
 const TareasStack = createNativeStackNavigator();
@@ -68,7 +68,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="Tareas" component={TareasNavigator} />
       <Tab.Screen name="Notificaciones" component={NotificacionesPlaceholder} />
-      <Tab.Screen name="Historial" component={HistorialPlaceholder} />
+      <Tab.Screen name="Historial" component={HistorialScreen} />
       <Tab.Screen name="Perfil" component={PerfilPlaceholder} />
     </Tab.Navigator>
   );

@@ -34,18 +34,28 @@ const cargarSesionGuardada = async () => {
     const token = await obtenerToken();
     const usuarioGuardado = await obtenerUsuario();
 
+    console.log('[DEBUG] Token en AsyncStorage:', token ? 'EXISTE' : 'NULL');
+    console.log('[DEBUG] Usuario en AsyncStorage:', usuarioGuardado ? 'EXISTE' : 'NULL');
+
     if (token && usuarioGuardado) {
-      setUsuario(usuarioGuardado);
+      try {
+        await authService.obtenerPerfil();
+        setUsuario(usuarioGuardado);
+        console.log('[DEBUG] Sesión restaurada OK');
+      } catch (errorValidacion) {
+        console.log('[DEBUG] Token inválido, código:', errorValidacion?.response?.status);
+        await limpiarSesion();
+      }
+    } else {
+      console.log('[DEBUG] No hay sesión guardada, ir a login limpio');
     }
   } catch (error) {
-    // Si falla (token inválido), limpiar silenciosamente
-    console.log('[Auth] Sesión guardada inválida, limpiando...');
+    console.log('[DEBUG] Error general:', error.message);
     await limpiarSesion();
   } finally {
     setCargando(false);
   }
 };
-
 
 
  const login = async (cedula, contrasena) => {
