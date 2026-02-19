@@ -7,6 +7,7 @@ import DetalleTareaScreen from '../screens/DetalleTareaScreen';
 import Toma5Screen from '../screens/Toma5Screen';
 import CrearTareaScreen from '../screens/CrearTareaScreen';
 import PerfilScreen from '../screens/PerfilScreen';
+import AsstScreen from '../screens/AsstScreen';
 
 
 const PlaceholderScreen = ({ nombre }) => (
@@ -27,6 +28,7 @@ const TareasNavigator = () => (
     <TareasStack.Screen name="DetalleTarea" component={DetalleTareaScreen} />
     <TareasStack.Screen name="Toma5" component={Toma5Screen} />
     <TareasStack.Screen name="CrearTarea" component={CrearTareaScreen} />
+     <TareasStack.Screen name="Asst" component={AsstScreen} />
   </TareasStack.Navigator>
 );
 

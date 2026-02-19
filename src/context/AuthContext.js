@@ -3,6 +3,7 @@ import { ROLES } from '../utils/constants';
 import { guardarToken, guardarUsuario, obtenerToken, obtenerUsuario, limpiarSesion } from '../utils/storage';
 import authService from '../services/auth.service';
 import { registrarCerrarSesion } from '../services/api';
+import { registrarTokenPush } from '../services/notificaciones.service';
 
 export const AuthContext = createContext();
 
@@ -11,26 +12,40 @@ export const AuthProvider = ({ children }) => {
   const [cargando, setCargando] = useState(true);
   const [sesionCerradaForzado, setSesionCerradaForzado] = useState(false);
 
-  // Al arrancar la app, verificar si hay sesión guardada
-  useEffect(() => {
-    cargarSesionGuardada();
+// useEffect 1: solo cargar sesión al montar
+useEffect(() => {
+  cargarSesionGuardada();
+}, []);
+
+// useEffect 2: registrar el callback para cerrar sesión forzado
+useEffect(() => {
+  if (__DEV__) {
+    registrarCerrarSesion(async () => {
+      await limpiarSesion();
+      setUsuario(null);
+    });
+  } else {
     registrarCerrarSesion(cerrarSesionForzado);
-  }, []);
+  }
+}, []);
 
 const cargarSesionGuardada = async () => {
   try {
     const token = await obtenerToken();
     const usuarioGuardado = await obtenerUsuario();
+
     if (token && usuarioGuardado) {
       setUsuario(usuarioGuardado);
     }
   } catch (error) {
-    console.error('Error al cargar sesión guardada:', error);
+    // Si falla (token inválido), limpiar silenciosamente
+    console.log('[Auth] Sesión guardada inválida, limpiando...');
     await limpiarSesion();
   } finally {
     setCargando(false);
   }
 };
+
 
 
  const login = async (cedula, contrasena) => {
@@ -51,6 +66,11 @@ const cargarSesionGuardada = async () => {
 
   await guardarUsuario(usuarioConPerfil);
   setUsuario(usuarioConPerfil);
+  try {
+  await registrarTokenPush();
+} catch (e) {
+  console.log('No se pudo registrar push token:', e);
+}
   setSesionCerradaForzado(false);
   return datos;
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Constants from 'expo-constants';
 import {
   View,
   Text,
@@ -37,14 +38,17 @@ const LoginScreen = () => {
       await login(cedula.trim(), contrasena.trim());
       // La navegación la maneja AppNavigator automáticamente
     } catch (err) {
-      const mensaje =
-        err.message ||
-        err.response?.data?.mensaje ||
-        'Error al iniciar sesión. Verifica tus credenciales.';
-      setError(mensaje);
-    } finally {
-      setCargando(false);
-    }
+  // Ignorar 401 que no vienen de una acción del usuario (reloads, interceptores)
+  if (err.response?.status === 401 && !cedula.trim() && !contrasena.trim()) return;
+  
+  const mensaje =
+    err.message ||
+    err.response?.data?.mensaje ||
+    'Error al iniciar sesión. Verifica tus credenciales.';
+  setError(mensaje);
+} finally {
+  setCargando(false);
+}
   };
 
   return (
@@ -54,13 +58,13 @@ const LoginScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Aviso de sesión cerrada forzado */}
-        {sesionCerradaForzado && (
-          <View style={styles.avisoCierre}>
-            <Text style={styles.avisoCierreTexto}>
-              Tu sesión fue cerrada porque iniciaste sesión en otro dispositivo.
-            </Text>
-          </View>
-        )}
+        {sesionCerradaForzado && !__DEV__ && (
+  <View style={styles.avisoCierre}>
+    <Text style={styles.avisoCierreTexto}>
+      Tu sesión fue cerrada porque iniciaste sesión en otro dispositivo.
+    </Text>
+  </View>
+)}
 
         {/* Logo / Encabezado */}
         <View style={styles.encabezado}>

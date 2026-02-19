@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../utils/constants';
-import { obtenerToken, limpiarSesion } from '../utils/storage';
+import { obtenerToken } from '../utils/storage';
 
-// Instancia base de axios
 const api = axios.create({
   baseURL: API_URL,
   timeout: 15000,
@@ -11,14 +10,13 @@ const api = axios.create({
   },
 });
 
-// Callback para cerrar sesión forzado - se registra desde AuthContext
 let cerrarSesionCallback = null;
 
 export const registrarCerrarSesion = (callback) => {
   cerrarSesionCallback = callback;
 };
 
-// Interceptor de solicitud - agrega el token JWT a cada petición
+// Interceptor de solicitud
 api.interceptors.request.use(
   async (config) => {
     const token = await obtenerToken();
@@ -30,13 +28,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor de respuesta - maneja errores globales
+// Interceptor de respuesta
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Si el servidor responde 401, la sesión fue cerrada en otro dispositivo
     if (error.response?.status === 401) {
-      await limpiarSesion();
+      // Siempre llamar el callback (limpia estado React + AsyncStorage)
+      // La diferencia DEV/PROD está en AuthContext, no aquí
       if (cerrarSesionCallback) {
         cerrarSesionCallback();
       }

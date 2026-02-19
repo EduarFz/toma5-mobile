@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { useAuth } from '../context/AuthContext';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
 
 const AppNavigator = () => {
   const { estaAutenticado, cargando } = useAuth();
+  const navigationRef = useRef(null);
 
-  // Pantalla de carga mientras se verifica la sesión guardada
+  // Deep link: al tocar una notificación, navegar a la tarea
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const tareaId = response.notification.request.content.data?.tareaId;
+        if (tareaId && navigationRef.current?.isReady()) {
+          navigationRef.current.navigate('Tareas', {
+            screen: 'DetalleTarea',
+            params: { tareaId },
+          });
+        }
+      }
+    );
+    return () => subscription.remove();
+  }, []);
+
   if (cargando) {
     return (
       <View style={styles.cargando}>
@@ -19,7 +36,7 @@ const AppNavigator = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {estaAutenticado ? <TabNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );

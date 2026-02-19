@@ -52,19 +52,22 @@ const TareasScreen = () => {
   };
 
   const cargarTareas = useCallback(async () => {
-    try {
-      setError('');
-      const fecha = obtenerFechaHoy();
-      const respuesta = await api.get(`/tareas?fecha=${fecha}`);
-      setTareas(respuesta.data.tareas);
-    } catch (err) {
-      setError('No se pudieron cargar las tareas. Verifica tu conexión.');
-      console.error('Error al cargar tareas:', err);
-    } finally {
-      setCargando(false);
-      setRefrescando(false);
-    }
-  }, []);
+  try {
+    setError('');
+    const fecha = obtenerFechaHoy();
+    const respuesta = await api.get(`/tareas?fecha=${fecha}`);
+    setTareas(respuesta.data.tareas);
+  } catch (err) {
+    // Si es 401, el interceptor ya cierra sesión — no mostrar error aquí
+    if (err.response?.status === 401) return;
+    setError('No se pudieron cargar las tareas. Verifica tu conexión.');
+    console.error('Error al cargar tareas:', err);
+  } finally {
+    setCargando(false);
+    setRefrescando(false);
+  }
+}, []);
+
 
   useEffect(() => {
     cargarTareas();
