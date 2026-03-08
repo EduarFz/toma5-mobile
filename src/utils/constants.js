@@ -1,6 +1,7 @@
 // URL del backend - apunta a la IP de tu PC en la red local
-export const API_URL = 'http://192.168.1.40:3000/api';
-export const SOCKET_URL = 'http://192.168.1.40:3000';
+export const API_URL = 'https://toma5-production.up.railway.app/api';
+export const SOCKET_URL = 'https://toma5-production.up.railway.app';
+
 
 // Estados de tarea - exactamente igual que en el backend
 export const ESTADOS_TAREA = {
